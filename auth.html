@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Login • Hablullah</title>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+
+      background:
+        radial-gradient(circle at top left, rgba(0, 119, 255, .25), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(124, 58, 237, .25), transparent 35%),
+        #050914;
+
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .glow {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(0, 140, 255, .12);
+      filter: blur(90px);
+      top: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    .glow2 {
+      position: fixed;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(130, 70, 255, .12);
+      filter: blur(90px);
+      bottom: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .075);
+      border: 1px solid rgba(255, 255, 255, .12);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-radius: 28px;
+      padding: 35px 30px;
+
+      box-shadow:
+        0 25px 70px rgba(0, 0, 0, .45),
+        inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+
+    .logo {
+      width: 62px;
+      height: 62px;
+      margin: auto;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      border-radius: 18px;
+
+      background: linear-gradient(135deg, #1683ff, #7547ff);
+
+      font-size: 27px;
+      font-weight: 900;
+
+      box-shadow: 0 10px 30px rgba(55, 100, 255, .35);
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #a9b1c2;
+      margin-top: 8px;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+
+    .field {
+      margin-bottom: 17px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: #cbd2df;
+      margin-bottom: 8px;
+    }
+
+    .input-box {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      height: 50px;
+
+      border: 1px solid rgba(255,255,255,.12);
+      outline: none;
+
+      border-radius: 13px;
+      padding: 0 15px;
+
+      background: rgba(0,0,0,.22);
+      color: white;
+
+      font-size: 15px;
+
+      transition: .25s;
+    }
+
+    input:focus {
+      border-color: #4285ff;
+      box-shadow: 0 0 0 3px rgba(66,133,255,.12);
+    }
+
+    input::placeholder {
+      color: #687386;
+    }
+
+    .eye {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      cursor: pointer;
+      color: #9ba5b7;
+      user-select: none;
+    }
+
+    .forgot {
+      text-align: right;
+      margin-top: -5px;
+      margin-bottom: 18px;
+    }
+
+    .forgot a {
+      color: #66a8ff;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .primary {
+      width: 100%;
+      height: 51px;
+
+      border: none;
+      border-radius: 13px;
+
+      background: linear-gradient(135deg, #1683ff, #6848ff);
+
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      box-shadow: 0 10px 25px rgba(53, 101, 255, .25);
+
+      transition: .25s;
+    }
+
+    .primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(53, 101, 255, .35);
+    }
+
+    .primary:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      margin: 24px 0;
+
+      color: #697386;
+      font-size: 12px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: rgba(255,255,255,.1);
+    }
+
+    .google {
+      width: 100%;
+      height: 50px;
+
+      border-radius: 13px;
+
+      border: 1px solid rgba(255,255,255,.13);
+
+      background: rgba(255,255,255,.06);
+      color: white;
+
+      cursor: pointer;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      transition: .25s;
+    }
+
+    .google:hover {
+      background: rgba(255,255,255,.11);
+    }
+
+    .google-icon {
+      background: white;
+      color: #4285f4;
+
+      width: 22px;
+      height: 22px;
+
+      border-radius: 50%;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 25px;
+
+      color: #8d97a9;
+      font-size: 14px;
+    }
+
+    .switch span {
+      color: #65a8ff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    .success {
+      color: #55e6a5;
+    }
+
+    .error {
+      color: #ff7185;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #596273;
+      font-size: 11px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 28px 21px;
+        border-radius: 23px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="glow"></div>
+  <div class="glow2"></div>
+
+  <div class="container">
+
+    <div class="card">
+
+      <div class="logo">H</div>
+
+      <h1 id="title">Welcome Back</h1>
+
+      <p class="subtitle" id="subtitle">
+        Login to your Hablullah account
+      </p>
+
+      <!-- NAME -->
+      <div class="field" id="nameField" style="display:none;">
+        <label>Full Name</label>
+        <input
+          id="name"
+          type="text"
+          placeholder="Enter your name"
+          autocomplete="name"
+        >
+      </div>
+
+      <!-- EMAIL -->
+      <div class="field">
+        <label>Email Address</label>
+
+        <input
+          id="email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        >
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="field">
+        <label>Password</label>
+
+        <div class="input-box">
+          <input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          >
+
+          <span
+            class="eye"
+            onclick="togglePassword()"
+            id="eye"
+          >👁</span>
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD -->
+      <div class="forgot" id="forgotBox">
+        <a onclick="forgotPassword()">
+          Forgot password?
+        </a>
+      </div>
+
+      <!-- LOGIN / SIGNUP -->
+      <button
+        class="primary"
+        id="mainBtn"
+        onclick="handleAuth()"
+      >
+        Login
+      </button>
+
+      <div class="divider">
+        OR
+      </div>
+
+      <!-- GOOGLE -->
+      <button
+        class="google"
+        onclick="googleLogin()"
+      >
+        <span class="google-icon">G</span>
+        Continue with Google
+      </button>
+
+      <!-- SWITCH -->
+      <div class="switch">
+
+        <span id="switchText">
+          Don't have an account?
+        </span>
+
+        <span
+          id="switchBtn"
+          onclick="toggleMode()"
+        >
+          Sign Up
+        </span>
+
+      </div>
+
+      <p id="message"></p>
+
+    </div>
+
+    <div class="footer">
+      © 2026 Hablullah • Learn Smart • Think Different
+    </div>
+
+  </div>
+
+
+<script>
+
+  /* =========================================
+     Hablullah Supabase Configuration
+  ========================================= */
+
+  const SUPABASE_URL =
+    "https://aczbrsyirzjrzbrdibmv.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_9AiNLzKBDRoe1rYepeKrYw_xUcJD2MI";
+
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+  /* =========================================
+     MODE
+  ========================================= */
+
+  let signupMode = false;
+
+
+  /* =========================================
+     LOGIN / SIGNUP SWITCH
+  ========================================= */
+
+  function toggleMode() {
+
+    signupMode = !signupMode;
+
+    const title =
+      document.getElementById("title");
+
+    const subtitle =
+      document.getElementById("subtitle");
+
+    const nameField =
+      document.getElementById("nameField");
+
+    const mainBtn =
+      document.getElementById("mainBtn");
+
+    const forgotBox =
+      document.getElementById("forgotBox");
+
+    const switchText =
+      document.getElementById("switchText");
+
+    const switchBtn =
+      document.getElementById("switchBtn");
+
+    clearMessage();
+
+    if (signupMode) {
+
+      title.textContent = "Create Account";
+
+      subtitle.textContent =
+        "Join the Hablullah learning community";
+
+      nameField.style.display = "block";
+
+      mainBtn.textContent = "Create Account";
+
+      forgotBox.style.display = "none";
+
+      switchText.textContent =
+        "Already have an account?";
+
+      switchBtn.textContent = " Login";
+
+    } else {
+
+      title.textContent = "Welcome Back";
+
+      subtitle.textContent =
+        "Login to your Hablullah account";
+
+      nameField.style.display = "none";
+
+      mainBtn.textContent = "Login";
+
+      forgotBox.style.display = "block";
+
+      switchText.textContent =
+        "Don't have an account?";
+
+      switchBtn.textContent = " Sign Up";
+    }
+  }
+
+
+  /* =========================================
+     SHOW / HIDE PASSWORD
+  ========================================= */
+
+  function togglePassword() {
+
+    const password =
+      document.getElementById("password");
+
+    const eye =
+      document.getElementById("eye");
+
+    if (password.type === "password") {
+
+      password.type = "text";
+      eye.textContent = "🙈";
+
+    } else {
+
+      password.type = "password";
+      eye.textContent = "👁";
+    }
+  }
+
+
+  /* =========================================
+     MESSAGE
+  ========================================= */
+
+  function showMessage(message, type = "error") {
+
+    const box =
+      document.getElementById("message");
+
+    box.textContent = message;
+    box.className = type;
+  }
+
+
+  function clearMessage() {
+
+    const box =
+      document.getElementById("message");
+
+    box.textContent = "";
+    box.className = "";
+  }
+
+
+  /* =========================================
+     EMAIL LOGIN / SIGNUP
+  ========================================= */
+
+  async function handleAuth() {
+
+    clearMessage();
+
+    const email =
+      document.getElementById("email")
+        .value
+        .trim();
+
+    const password =
+      document.getElementById("password")
+        .value;
+
+    const name =
+      document.getElementById("name")
+        .value
+        .trim();
+
+    const button =
+      document.getElementById("mainBtn");
+
+
+    if (!email) {
+      showMessage("Please enter your email.");
+      return;
+    }
+
+
+    if (!email.includes("@")) {
+      showMessage("Please enter a valid email.");
+      return;
+    }
+
+
+    if (!password) {
+      showMessage("Please enter your password.");
+      return;
+    }
+
+
+    if (password.length < 6) {
+      showMessage(
+        "Password must be at least 6 characters."
+      );
+      return;
+    }
+
+
+    if (signupMode && !name) {
+      showMessage("Please enter your name.");
+      return;
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+      signupMode
+        ? "Creating account..."
+        : "Logging in...";
+
+
+    try {
+
+      /* SIGN UP */
+
+      if (signupMode) {
+
+        const { error } =
+          await supabaseClient.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+
+              data: {
+                full_name: name
+              },
+
+              emailRedirectTo:
+                "https://prohablullah.github.io/auth.html"
+            }
+          });
+
+
+        if (error) throw error;
+
+
+        showMessage(
+          "Account created! Check your email to confirm your account.",
+          "success"
+        );
+
+
+        document.getElementById("password").value = "";
+
+      }
+
+
+      /* LOGIN */
+
+      else {
+
+        const { error } =
+          await supabaseClient.auth
+            .signInWithPassword({
+
+              email: email,
+              password: password
+            });
+
+
+        if (error) throw error;
+
+
+        showMessage(
+          "Login successful! Redirecting...",
+          "success"
+        );
+
+
+        setTimeout(() => {
+
+          window.location.href = "index.html";
+
+        }, 1000);
+      }
+
+
+    } catch (error) {
+
+      showMessage(
+        error.message ||
+        "Something went wrong."
+      );
+
+    }
+
+
+    button.disabled = false;
+
+    button.textContent =
+      signupMode
+        ? "Create Account"
+        : "Login";
+  }
+
+
+  /* =========================================
+     GOOGLE LOGIN
+  ========================================= */
+
+  async function googleLogin() {
+
+    clearMessage();
+
+    try {
+
+      const { error } =
+        await supabaseClient.auth
+          .signInWithOAuth({
+
+            provider: "google",
+
+            options: {
+
+              redirectTo:
+                "https://prohablullah.github.io/auth.html"
+            }
+          });
+
+
+      if (error) throw error;
+
+    } catch (error) {
+
+      showMessage(
+        error.message ||
+        "Google login failed."
+      );
+    }
+  }
+
+
+  /* =========================================
+     FORGOT PASSWORD
+  ========================================= */
+
+  async function forgotPassword() {
+
+    clearMessage();
+
+    const email =
+      document.getElementById("email")
+        .value
+        .trim();
+
+
+    if (!email) {
+
+      showMessage(
+        "Enter your email first."
+      );
+
+      return;
+    }
+
+
+    const { error } =
+      await supabaseClient.auth
+        .resetPasswordForEmail(
+          email,
+          {
+            redirectTo:
+              "https://prohablullah.github.io/auth.html"
+          }
+        );
+
+
+    if (error) {
+
+      showMessage(error.message);
+
+      return;
+    }
+
+
+    showMessage(
+      "Password reset email sent.",
+      "success"
+    );
+  }
+
+
+  /* =========================================
+     AUTH STATE
+  ========================================= */
+
+  supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+
+      if (
+        event === "SIGNED_IN" &&
+        session
+      ) {
+
+        console.log(
+          "User logged in:",
+          session.user.email
+        );
+      }
+    }
+  );
+
+</script>
+
+</body>
+</html>
